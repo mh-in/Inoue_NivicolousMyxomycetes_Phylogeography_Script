@@ -25,7 +25,7 @@ Reproduce the analyses
    - `_script/04_haplotype_beta_diversity_analysis.R`
    - `_script/05_species_ecological_analysis.R`
    - `_script/SA_sensitivity_analysis.R` (sensitivity analyses; can be run after script 02)
-Utility functions: `_script/utils_ecology_myxo.R`
+   - Utility functions: `_script/utils_ecology_myxo.R`
 4. Run these scripts at any time to analyse the sequence data with Python:
    - `_script/Double peak detection.py`
    - `_script/Single_substitution_detect_among_singleton.py`
