@@ -47,8 +47,3 @@ authors:
   - family-names: "Schnittler"
     given-names: "Martin"
     orcid: "https://orcid.org/0000-0003-0909-5627"
-version: "v1.1.0"
-date-released: "2026-06-08"
-license: "MIT"
-repository-code: "https://github.com/mh-in/Inoue_NivicolousMyxomycetes_Phylogeography_Script"
-doi: "10.5281/zenodo.17593131"
