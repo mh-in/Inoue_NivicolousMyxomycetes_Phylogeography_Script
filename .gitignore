@@ -1,0 +1,20 @@
+# Quarto・RMarkdown etc.
+*.html
+*.pdf
+*.docx
+*.png
+*.js
+_data/
+
+
+
+# R
+.Rproj.user
+*.Rproj
+.Rhistory
+.quarto
+.RData
+
+
+# macOS
+.DS_Store

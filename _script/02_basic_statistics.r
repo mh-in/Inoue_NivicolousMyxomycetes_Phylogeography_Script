@@ -576,26 +576,64 @@ cor_test
 #### 7-4-3. Plot
 # Scatter plot on the ligression model
 library(ggplot2)
-scatter_p <- ggplot(region_summary, aes(x = lat, y = peak_elev_95)) +
-  geom_point(size = 2) +
-  geom_smooth(method = "lm", se = TRUE, color = "blue") +
-  labs(x = "Latitude (°)", y = "Peak elevation (m a.s.l.)",
-       title = paste0("Spearman ρ = ", round(cor_test$estimate, 3), ", p = ", round(cor_test$p.value, 3),
-                      "; \nLinear regression: Adj. R^2 = ", round(lm_fit_summary$adj.r.squared, 3), 
-                      ", Slope (β1) = ", round(lm_fit_summary$coefficients["lat", "Estimate"], 2), "m/°")) 
-scatter_p
 
-# Peak elevation on elev_p
+# Add integer x-positions matching the categorical order (for the trend line).
+# region_summary already exists from section 7-4-1; we just append Code_idx here.
+region_summary <- region_summary %>%
+  dplyr::mutate(Code_idx = match(Code, custom_order))
+
+# Format p-value cleanly for display
+p_text <- ifelse(p_model < 0.001, "< 0.001",
+                 paste0("= ", signif(p_model, 2)))
+
+# Compose the in-panel statistics annotation (three compact lines)
+# Note: the regression is on actual latitudes (lm_fit), not on positional index;
+# the dashed line in the plot is a visual trend through region positions.
+stats_label <- paste0(
+  "Linear regression: \u03b2\u2081 = ",
+  round(lm_fit_summary$coefficients["lat", "Estimate"], 2),
+  " m/\u00b0,  \nAdj. R\u00b2 = ",
+  round(lm_fit_summary$adj.r.squared, 3), "\n",
+  "F(", lm_fit_summary$fstatistic["numdf"], ", ",
+  lm_fit_summary$fstatistic["dendf"], ") = ",
+  round(lm_fit_summary$fstatistic["value"], 1),
+  ",  p ", p_text, "\n",
+  "Spearman: \u03c1 = ", round(cor_test$estimate, 3),
+  ",  p = ", round(cor_test$p.value, 3)
+)
+
 elev_p_with_peaks <- elev_p +
-  geom_point(data = region_summary, aes(x = Code, y = peak_elev_95),
-             color = "black", size = 2, shape = 21, fill = "yellow") +
-  geom_text(data = region_summary, aes(x = Code, y = peak_elev_95, label = round(peak_elev_95)),
-            vjust = -0.7, size = 2.5) +
-  labs(title = paste0("Spearman ρ = ", round(cor_test$estimate, 3), ", p = ", round(cor_test$p.value, 3),
-                      "; \nLinear regression: Adj. R^2 = ", round(lm_fit_summary$adj.r.squared, 3), 
-                      ", Slope (β1) = ", round(lm_fit_summary$coefficients["lat", "Estimate"], 2), "m/°"))
+  # Dashed trend line across regions (positional x-axis; visual aid)
+  geom_smooth(data = region_summary,
+              aes(x = Code_idx, y = peak_elev_95),
+              method = "lm", se = TRUE,
+              color = "blue", fill = "lightblue", alpha = 0.2,
+              linewidth = 0.5, linetype = "dashed",
+              inherit.aes = FALSE) +
+  # Yellow-filled circles at 95th-percentile elevation per region
+  geom_point(data = region_summary,
+             aes(x = Code, y = peak_elev_95),
+             color = "black", size = 2, shape = 21, fill = "yellow",
+             inherit.aes = FALSE) +
+  geom_text(data = region_summary,
+            aes(x = Code, y = peak_elev_95, label = round(peak_elev_95)),
+            vjust = -0.7, size = 2.5, inherit.aes = FALSE) +
+  # In-panel statistics annotation (top area, right of the "D" panel label)
+  annotate("text",
+           x = 5, y = 2900,
+           label = stats_label,
+           hjust = 0, vjust = 1, size = 2.5, lineheight = 1.1) +
+  labs(title = NULL)
 
 elev_p_with_peaks
+
+ggsave(
+  filename = "../_results/Fig1D_elev_violin_with_stats.pdf",
+  plot     = elev_p_with_peaks,
+  width    = 5,
+  height   = 4,
+  dpi      = 300
+)
 
 
 ## 8. nMDS calculation for Fig 3DE Table S2&3
